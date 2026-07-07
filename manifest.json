@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Shipay Dev - PIX Tester",
+  "version": "1.0.0",
+  "description": "Lê o QR PIX do PDV e confirma o pagamento automaticamente em ambiente de testes.",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Shipay PIX Tester"
+  },
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://api-staging.shipay.com.br/*"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
