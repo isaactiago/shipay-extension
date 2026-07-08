@@ -1,5 +1,3 @@
-// popup.js
-
 const API_BASE = "https://api-staging.shipay.com.br";
 
 const emptyState = document.getElementById("empty-state");
@@ -7,27 +5,44 @@ const capturedState = document.getElementById("captured-state");
 const txidValueEl = document.getElementById("txid-value");
 const payBtn = document.getElementById("pay-btn");
 const resultMsg = document.getElementById("result-msg");
-const readBtn = document.getElementById("read-qr-btn");
+const refreshBtn = document.getElementById("refresh-btn");
 
 let currentTxid = null;
 
 function showEmpty(message) {
-  emptyState.textContent = message || "Abra a aba com o QR do PDV e clique abaixo.";
+  currentTxid = null;
+  emptyState.textContent = message || "Nenhum QR encontrado nesta aba.";
   emptyState.style.display = "block";
   capturedState.style.display = "none";
 }
 
-function showCaptured(txid) {
+function showCaptured(txid, alreadyPaid) {
   currentTxid = txid;
   emptyState.style.display = "none";
   capturedState.style.display = "block";
   txidValueEl.textContent = txid;
   resultMsg.textContent = "";
   resultMsg.className = "result-msg";
+
+  if (alreadyPaid) {
+    payBtn.disabled = true;
+    payBtn.textContent = "Já pago";
+    resultMsg.textContent = "Esse pedido já foi confirmado nesta sessão.";
+    resultMsg.classList.add("success");
+  } else {
+    payBtn.disabled = false;
+    payBtn.textContent = "Pagar";
+  }
 }
 
-// Função injetada DENTRO da aba ativa. Não tem acesso a variáveis do popup,
-// só pode retornar dados simples (string/objeto serializável).
+function showLoading() {
+  emptyState.textContent = "Lendo QR da aba...";
+  emptyState.style.display = "block";
+  capturedState.style.display = "none";
+}
+
+//funções injetadas na aba ativa
+
 function readQrFromPage() {
   const img =
     document.querySelector(".qrcode-container img") ||
@@ -42,7 +57,6 @@ function readQrFromPage() {
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-  // window.jsQR precisa já ter sido injetado antes desta função rodar
   const result = window.jsQR(imageData.data, canvas.width, canvas.height);
   if (!result) return { error: "Não consegui decodificar o QR (imagem ilegível)." };
 
@@ -50,26 +64,35 @@ function readQrFromPage() {
     const jsonStr = atob(result.data);
     const parsed = JSON.parse(jsonStr);
     if (!parsed.id) return { error: "QR decodificado, mas sem campo 'id'.", raw: result.data };
-    return { id: parsed.id, raw: result.data };
+    return { id: parsed.id };
   } catch (err) {
     return { error: "QR não é o formato esperado (base64 JSON).", raw: result.data };
   }
 }
 
-readBtn.addEventListener("click", async () => {
-  readBtn.disabled = true;
-  readBtn.textContent = "Lendo...";
+async function isTxidPaid(txid) {
+  const { paidTxids } = await chrome.storage.session.get(["paidTxids"]);
+  return Array.isArray(paidTxids) && paidTxids.includes(txid);
+}
+
+async function markTxidAsPaid(txid) {
+  const { paidTxids } = await chrome.storage.session.get(["paidTxids"]);
+  const list = Array.isArray(paidTxids) ? paidTxids : [];
+  if (!list.includes(txid)) list.push(txid);
+  await chrome.storage.session.set({ paidTxids: list });
+}
+
+async function readCurrentTab() {
+  showLoading();
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-    // 1) injeta a lib jsQR na aba
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       files: ["libs/jsQR.js"]
     });
 
-    // 2) injeta e executa a função de leitura, pegando o retorno
     const [{ result }] = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: readQrFromPage
@@ -77,26 +100,23 @@ readBtn.addEventListener("click", async () => {
 
     if (result.error) {
       showEmpty(result.error);
-    } else {
-      chrome.storage.local.set({ lastTxid: result.id });
-      showCaptured(result.id);
+      return;
     }
+
+    const alreadyPaid = await isTxidPaid(result.id);
+    showCaptured(result.id, alreadyPaid);
   } catch (err) {
     showEmpty(`Erro ao ler a aba: ${err.message}`);
-  } finally {
-    readBtn.disabled = false;
-    readBtn.textContent = "Ler QR desta aba";
   }
-});
+}
 
 async function confirmPagamento(txid) {
   const url = `${API_BASE}/notification/shipay-pagador/${txid}`;
-  const resp = await fetch(url, {
+  const response = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({})
+    headers: { "Content-Type": "application/json" }
   });
-  return { status: resp.status, data: await resp.json() };
+  return { status: response.status, data: await response.json() };
 }
 
 payBtn.addEventListener("click", async () => {
@@ -110,17 +130,26 @@ payBtn.addEventListener("click", async () => {
   try {
     const { status, data } = await confirmPagamento(currentTxid);
     resultMsg.textContent = `[${status}] ${data.message || JSON.stringify(data)}`;
-    resultMsg.classList.add(status === 200 ? "success" : "error");
+
+    if (status === 200) {
+      resultMsg.classList.add("success");
+      await markTxidAsPaid(currentTxid);
+      payBtn.textContent = "Já pago";
+      // fica desabilitado de propósito, não volta a "Pagar" pro mesmo txid
+    } else {
+      resultMsg.classList.add("error");
+      payBtn.disabled = false;
+      payBtn.textContent = "Pagar";
+    }
   } catch (err) {
     resultMsg.textContent = `Erro: ${err.message}`;
     resultMsg.classList.add("error");
-  } finally {
     payBtn.disabled = false;
     payBtn.textContent = "Pagar";
   }
 });
 
-// estado inicial: recupera o último txid salvo, se houver
-chrome.storage.local.get(["lastTxid"], (data) => {
-  if (data.lastTxid) showCaptured(data.lastTxid);
-});
+refreshBtn.addEventListener("click", readCurrentTab);
+
+// lê automaticamente assim que o popup abre
+readCurrentTab();
