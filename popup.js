@@ -24,15 +24,17 @@ function showCaptured(txid, alreadyPaid) {
   resultMsg.textContent = "";
   resultMsg.className = "result-msg";
 
-  if (alreadyPaid) {
-    payBtn.disabled = true;
-    payBtn.textContent = "Já pago";
-    resultMsg.textContent = "Esse pedido já foi confirmado nesta sessão.";
-    resultMsg.classList.add("success");
-  } else {
+  if (!alreadyPaid) {
     payBtn.disabled = false;
     payBtn.textContent = "Pagar";
+
+    return;
   }
+
+  payBtn.disabled = true;
+  payBtn.textContent = "Já pago";
+  resultMsg.textContent = "Esse pedido já foi confirmado nesta sessão.";
+  resultMsg.classList.add("success");
 }
 
 function showLoading() {
@@ -77,8 +79,11 @@ async function isTxidPaid(txid) {
 
 async function markTxidAsPaid(txid) {
   const { paidTxids } = await chrome.storage.session.get(["paidTxids"]);
+
   const list = Array.isArray(paidTxids) ? paidTxids : [];
+
   if (!list.includes(txid)) list.push(txid);
+
   await chrome.storage.session.set({ paidTxids: list });
 }
 
@@ -131,16 +136,17 @@ payBtn.addEventListener("click", async () => {
     const { status, data } = await confirmPagamento(currentTxid);
     resultMsg.textContent = `[${status}] ${data.message || JSON.stringify(data)}`;
 
-    if (status === 200) {
-      resultMsg.classList.add("success");
-      await markTxidAsPaid(currentTxid);
-      payBtn.textContent = "Já pago";
-      // fica desabilitado de propósito, não volta a "Pagar" pro mesmo txid
-    } else {
+    if (status !==  200) {
       resultMsg.classList.add("error");
       payBtn.disabled = false;
       payBtn.textContent = "Pagar";
+
+      return;
     }
+
+    resultMsg.classList.add("success");
+    await markTxidAsPaid(currentTxid);
+    payBtn.textContent = "Já pago";
   } catch (err) {
     resultMsg.textContent = `Erro: ${err.message}`;
     resultMsg.classList.add("error");
