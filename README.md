@@ -28,9 +28,3 @@ shipay-extension/
     ├── icon48.png
     └── icon128.png
 ```
-
-## Observação
-
-Alguns sites bloqueiam carregamento via iframe com o header `X-Frame-Options: DENY`.
-Se o staging da Shipay usar esse header, o conteúdo não vai aparecer no popup.
-Nesse caso, use o botão **"Abrir em Nova Aba"** — abrirá normalmente em uma aba do Chrome.
