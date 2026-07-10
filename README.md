@@ -1,4 +1,4 @@
-# Shipay PIX Tester — Extensão Chrome
+# Shipay PIX — Extensão Chrome
 
 Extensão para testar pagamentos PIX no ambiente de staging da Shipay sem precisar usar o celular.
 
