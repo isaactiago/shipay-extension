@@ -21,7 +21,7 @@ Extensão para testar pagamentos PIX no ambiente de staging da Shipay sem precis
 ```
 shipay-extension/
 ├── manifest.json     # Configuração da extensão
-├── popup.html        # Interface visual
+├── index.html        # Interface visual
 ├── popup.js          # Lógica da extensão
 └── icons/
     ├── icon16.png
