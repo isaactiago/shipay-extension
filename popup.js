@@ -43,8 +43,6 @@ function showLoading() {
   capturedState.style.display = "none";
 }
 
-//funções injetadas na aba ativa
-
 function readQrFromPage() {
   const img =
     document.querySelector(".qrcode-container img") ||
