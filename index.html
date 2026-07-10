@@ -2,40 +2,12 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Shipay PIX Tester</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --bg: #0d0f14; --surface: #161922; --surface2: #1e2330; --border: #2a3045;
-      --accent: #00e5a0; --accent-dim: rgba(0, 229, 160, 0.12);
-      --text: #e8eaf0; --muted: #6b7280; --danger: #ff4d6d;
-    }
-    body { width: 380px; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 13px; }
-    .header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 12px; border-bottom: 1px solid var(--border); background: var(--surface); }
-    .header-left { display: flex; align-items: center; gap: 10px; }
-    .logo { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; color: #0d0f14; flex-shrink: 0; }
-    .header-title h1 { font-size: 13px; font-weight: 600; }
-    .header-title span { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-    .env-badge { background: var(--accent-dim); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(0, 229, 160, 0.25); }
-    .content { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-    .status-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
-    .muted-text { color: var(--muted); font-size: 12px; text-align: center; line-height: 1.5; }
-    .info-label { color: var(--muted); font-size: 11px; font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; }
-    .info-value { color: var(--accent); font-size: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 600; word-break: break-all; margin-bottom: 10px; }
-    .btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; }
-    .btn:hover { border-color: var(--accent); color: var(--accent); }
-    .btn-primary { background: var(--accent); color: #0d0f14; border-color: var(--accent); }
-    .btn-primary:hover { background: #00ffb3; color: #0d0f14; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .result-msg { margin-top: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
-    .result-msg.success { color: var(--accent); }
-    .result-msg.error { color: var(--danger); }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shipay PIX</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
 
+<body>
   <div class="header">
     <div class="header-left">
       <div class="logo">S$</div>
