@@ -138,7 +138,7 @@ payBtn.addEventListener("click", async () => {
     const { status, data } = await confirmPagamento(currentTxid);
     resultMsg.textContent = `[${status}] ${data.message || JSON.stringify(data)}`;
 
-    if (status !==  200) {
+    if (status !== 200) {
       resultMsg.classList.add("error");
       payBtn.disabled = false;
       payBtn.textContent = "Pagar";
