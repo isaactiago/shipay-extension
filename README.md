@@ -13,10 +13,8 @@ Extensão para testar pagamentos PIX no ambiente de staging da Shipay sem precis
 ## Como usar
 
 - Clique no ícone verde **S$** na barra de extensões
-- O popup abre com o ambiente de staging embutido
-- Se o site bloquear iframe, clique em **"Abrir em Nova Aba"**
-- Use **"Recarregar"** para forçar refresh da página
-- Use **"Copiar URL"** para compartilhar com o time de QA
+- O popup abre com o botão com a opção de pagar
+- Vocẽ clica em pagar e pronto !
 
 ## Estrutura
 
