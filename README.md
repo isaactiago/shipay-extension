@@ -23,6 +23,7 @@ shipay-extension/
 ├── manifest.json     # Configuração da extensão
 ├── index.html        # Interface visual
 ├── popup.js          # Lógica da extensão
+├── libs/jsQR.js      # lib para scanear qrcode 
 └── icons/
     ├── icon16.png
     ├── icon48.png
