@@ -55,8 +55,10 @@ function readQrFromPage() {
   const canvas = document.createElement("canvas");
   canvas.width = img.naturalWidth || img.width;
   canvas.height = img.naturalHeight || img.height;
+
   const ctx = canvas.getContext("2d");
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
   const result = window.jsQR(imageData.data, canvas.width, canvas.height);
@@ -65,7 +67,9 @@ function readQrFromPage() {
   try {
     const jsonStr = atob(result.data);
     const parsed = JSON.parse(jsonStr);
+
     if (!parsed.id) return { error: "QR decodificado, mas sem campo 'id'.", raw: result.data };
+
     return { id: parsed.id };
   } catch (err) {
     return { error: "QR não é o formato esperado (base64 JSON).", raw: result.data };
@@ -157,5 +161,4 @@ payBtn.addEventListener("click", async () => {
 
 refreshBtn.addEventListener("click", readCurrentTab);
 
-// lê automaticamente assim que o popup abre
 readCurrentTab();
